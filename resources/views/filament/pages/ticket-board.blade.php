@@ -1,5 +1,6 @@
 <x-filament-panels::page>
     <link rel="stylesheet" href="{{ asset('css/kanban.css') }}">
+
     <div class="kanban-toolbar">
         <div class="view-toggle-group">
             <button
@@ -36,6 +37,7 @@
             </button>
         </div>
     </div>
+
     <div class="kanban-board-container">
         <div class="kanban-board">
             @foreach ($this->columns as $column)
@@ -71,11 +73,19 @@
                                 "
                                 wire:click="mountAction('editTicket', { ticketId: {{ $ticket->id }} })"
                                 class="kanban-card"
-                                style="border-left-color: {{ $ticket->status::$name === 'open' ? '#f59e0b' : ($ticket->status::$name === 'in_progress' ? '#3b82f6' : '#10b981') }}; cursor: pointer;"
+                                style="border-left-color: {{
+                                    match((string) $ticket->status) {
+                                        'open' => '#f59e0b',
+                                        'in_progress' => '#3b82f6',
+                                        'resolved', 'closed' => '#10b981',
+                                        'cancelled' => '#ef4444',
+                                        default => '#9ca3af',
+                                    }
+                                }}; cursor: pointer;"
                             >
                                 <div class="card-meta">
                                     <span class="card-folio">
-                                        {{ $ticket->ticket_number }}
+                                        {{ $ticket->ticket_number ?? 'S/N' }}
                                     </span>
                                     <span class="card-date">
                                         {{ $ticket->created_at->format('d/m/Y') }}
@@ -88,8 +98,10 @@
 
                                 <!-- Stop propagation para que cambiar el select no abra el modal -->
                                 <div class="card-footer" x-data @click.stop @mousedown.stop>
-                                    <div class="card-avatar" title="{{ $ticket->assignee?->name ?? 'Sin asignar' }}">
-                                        {{ $ticket->assignee ? substr($ticket->assignee->name, 0, 1) : '?' }}
+
+                                    <!-- CORRECCIÓN: assignee -> technician -->
+                                    <div class="card-avatar" title="{{ $ticket->technician?->name ?? 'Sin asignar' }}">
+                                        {{ $ticket->technician ? substr($ticket->technician->name, 0, 1) : '?' }}
                                     </div>
 
                                     <select
@@ -98,9 +110,10 @@
                                     >
                                         <option value="">Sin asignar</option>
                                         @foreach ($this->users as $user)
+                                            <!-- CORRECCIÓN: assigned_to -> assigned_tech_id -->
                                             <option
                                                 value="{{ $user->id }}"
-                                                @selected($ticket->assigned_to == $user->id)
+                                                @selected($ticket->assigned_tech_id == $user->id)
                                             >
                                                 {{ $user->name }}
                                             </option>
