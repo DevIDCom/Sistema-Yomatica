@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
@@ -10,7 +11,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Shield Resource
+    | Shield Resources
     |--------------------------------------------------------------------------
     |
     | Here you may configure the built-in role management resource. You can
@@ -55,7 +56,7 @@ return [
     |
     */
 
-    'auth_provider_model' => 'App\\Models\\User',
+    'auth_provider_model' => 'App\\Domains\\Users\\Models\\User',
 
     /*
     |--------------------------------------------------------------------------
